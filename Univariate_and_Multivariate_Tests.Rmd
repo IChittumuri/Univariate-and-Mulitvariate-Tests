@@ -1,0 +1,166 @@
+---
+title: "Univariate and Mulitvariate Tests"
+author: "Isabella Chittumuri"
+date: "10/8/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+ 
+5.11 Test $H_0$: $\mu'$ = (6,11) 
+
+Formula for multivariate test statistic $T^2$
+
+$$
+ T^2 = n(\bar{y}-\mu_0)'{S}^{-1}(\bar{y}-\mu_0)
+$$
+
+```{r}
+# Make Y matrix from textbook
+Y <- matrix(c(3,10,6,12,5,14,10,9), nrow = 4, ncol = 2, byrow = TRUE); Y
+
+# Number of rows and columns in Y
+n <- nrow(Y)
+p <- ncol(Y)
+```
+
+```{r}
+# Vector of the means
+# The number 2 tells R to look at columns (1 for rows)
+ybar <- apply(Y,2,mean); ybar
+
+# Mean to be tested
+mu <- c(6,11); mu
+```
+
+```{r}
+# Unbiased variance/covariance of Y matrix
+S <- var(Y); S
+
+# Inverse of S
+S_inv <- solve(S); S_inv
+
+# Deviation vector 
+ydev <- (ybar - mu) ; ydev
+
+# Transpose of deviation vector
+ydev_t <- t(ydev); ydev_t
+```
+
+```{r}
+# Test statistic
+Tsqr <- n*(ydev_t %*% S_inv %*% ydev); Tsqr
+```
+
+```{r}
+# Critical value for $T^2$ -distribution
+alpha <- 0.05
+n <- 4
+p <- 2
+( Fcrit05 <- (((n-1)*p)/(n-p))*qf(1-alpha,p,n-p) )
+```
+
+Our test statistic ($T^2$) is 0.061. This value is not greater than our critical value for alpha 0.05, therefore we do not reject the null hypothesis.
+
+5.14 Use the ramus bone data in Table 3.7:
+
+```{r}
+getwd()
+bonelength <- read.csv("Table 3.7.csv")
+```
+
+(a) Test $H_0$: $\mu$ = (48,49, 50,51)'
+
+```{r}
+# Mean to be tested
+mu_1 <- matrix(c(48,49,50,51), nrow = 4, ncol = 1, byrow = F); mu_1
+```
+
+```{r}
+# Individual variable means
+ybar1 <- mean(bonelength$y1)
+ybar2 <- mean(bonelength$y2)
+ybar3 <- mean(bonelength$y3)
+ybar4 <- mean(bonelength$y4)
+```
+
+```{r}
+# Put all ybars into a 4x1 matrix
+ybar_1<- matrix(c(ybar1, ybar2, ybar3, ybar4), nrow = 4, ncol = 1, byrow = F); ybar_1
+```
+
+```{r}
+# Covariance matrix of dataframe
+S_bone <- cov(bonelength); S_bone
+```
+
+```{r}
+# Covariance matrix of dataframe
+S_bone <- cov(bonelength); S_bone
+
+# Inverse of S_bone
+S_bone_inv <- solve(S_bone); S_bone_inv
+
+# Deviation vector 
+ydev_1 <- (ybar_1 - mu_1); ydev_1
+
+# Transpose of deviation vector
+ydev_t_1 <- t(ybar_1 - mu_1); ydev_t_1
+
+# Multivariate test statistic
+Tsq <- 19*(ydev_t_1 %*% S_bone_inv %*% ydev_1); Tsq
+```
+
+```{r}
+# Critical value for $T^2$ -distribution
+alpha <- 0.05
+n <- 19
+p <- 4
+( Fcrit05 <- (((n-1)*p)/(n-p))*qf(1-alpha,p,n-p) )
+```
+ 
+Our multivariate test statistic is 2.925. This value is not greater than our critical value which is 14.667. Therefore, we do not reject the null hypothesis.
+
+(b) If Ho is rejected, test each variable separately.
+
+Formula for univariate test statistic $t^2$
+
+$$
+t = \frac{\bar{y} - \mu_0}{s/{\sqrt{n}}} = \frac{\sqrt{n}(\bar{y}-\mu_0)}{s}
+$$
+
+```{r}
+# Standard deviation (sd) of each variable
+bone_sd <- apply(bonelength, 2, sd); bone_sd
+```
+
+```{r}
+# Call each sd separately
+y1_sd <- bone_sd[1]; y1_sd
+y2_sd <- bone_sd[2]; y2_sd
+y3_sd <- bone_sd[3]; y3_sd
+y4_sd <- bone_sd[4]; y4_sd
+```
+
+```{r}
+# Recall mu and ybars from part (a) 
+mu_1
+ybar_1
+```
+
+```{r}
+# Univariate test statistic using values for corresponding variables
+(48.77895 - 48)/(y1_sd/sqrt(19))
+(49.73158 - 49)/(y2_sd/sqrt(19))
+(50.53158- 50)/(y3_sd/sqrt(19))
+(51.43158- 51)/(y4_sd/sqrt(19))
+```
+
+```{r}
+# Critical value for $t^2$ -distribution (alpha=.05, n=19)
+qt(.05, (19-1), lower.tail = F)
+```
+
+None of our univariate test statistic is greater than our critical value which is 1.734. Therefore this confirms our result in part (a), that we do not reject the null hypothesis.
